@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: cafe-aroma-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cafe-aroma-db
+          property: connectionString
+      - key: SEED_ADMIN_EMAIL
+        value: admin@cafearoma.com
+      - key: SEED_ADMIN_PASSWORD
+        value: admin123
+      - key: SEED_CLIENT_EMAIL
+        value: cliente@cafearoma.com
+      - key: SEED_CLIENT_PASSWORD
+        value: cliente123
+
+databases:
+  - name: cafe-aroma-db
+    plan: free
+    databaseName: cafe_db
+    user: cafe

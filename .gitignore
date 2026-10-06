@@ -1,0 +1,26 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.iml
+
+# Node
+node_modules/
+npm-debug.log*
+backend/*.log
+
+# Entorno
+.env
+.DS_Store
+Thumbs.db
+*.log
+*.err
+backend/compose*.log*

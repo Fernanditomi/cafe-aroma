@@ -1,0 +1,46 @@
+name: cafe-aroma
+
+# Proyecto independiente de KIVO (que usa backend-db-1 en 5432 y backend-1 en 3000).
+# Aqui: contenedores cafe-aroma-*, API en 8080 y PostgreSQL en 5433.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cafe-aroma-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cafe}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cafe_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-cafe_db}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - cafe_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-cafe} -d $${POSTGRES_DB:-cafe_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build: .
+    container_name: cafe-aroma-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      DATABASE_URL: postgres://${POSTGRES_USER:-cafe}:${POSTGRES_PASSWORD:-cafe_secret}@db:5432/${POSTGRES_DB:-cafe_db}
+      JWT_SECRET: ${JWT_SECRET:-cafe-aroma-dev-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@cafearoma.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123}
+      SEED_CLIENT_EMAIL: ${SEED_CLIENT_EMAIL:-cliente@cafearoma.com}
+      SEED_CLIENT_PASSWORD: ${SEED_CLIENT_PASSWORD:-cliente123}
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+volumes:
+  cafe_pgdata:
